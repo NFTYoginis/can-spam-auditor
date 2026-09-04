@@ -299,7 +299,14 @@ def check_ad_disclosure(body_text: str) -> Finding:
         "found in the body. Note: this checks for presence of a disclosure "
         "phrase, not whether an existing one is 'clear and conspicuous' "
         "enough — that finer judgment stays AI-ASSISTED even when this "
-        "check passes.",
+        "check passes. Scope note: this check assumes the message's "
+        "primary purpose is commercial under 16 CFR §316.3(a). A message "
+        "that's genuinely transactional-or-relationship in nature "
+        "(§316.3(c)) is 'otherwise exempt from most provisions of the "
+        "CAN-SPAM Act' (FTC Compliance Guide) — including this one. This "
+        "checker doesn't classify primary purpose, so a FAIL here means "
+        "'no disclosure phrase found,' not 'this message definitely "
+        "needed one.'",
     )
 
 

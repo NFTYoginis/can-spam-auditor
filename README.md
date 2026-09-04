@@ -64,7 +64,7 @@ Exit code `0` if every automated check passes; `1` if any `FAIL` fired.
 | --- | --- | --- |
 | Accurate header info (From/Reply-To domain consistency) | `AUTOMATED` | |
 | Non-deceptive subject line | `AUTOMATED` *(one narrow structural case)* / `AI-ASSISTED` *(everything else)* | See `reference/rule-map.md` |
-| Ad disclosure present | `AUTOMATED` | |
+| Ad disclosure present | `AUTOMATED` | only binds commercial-purpose messages (§316.3) — a FAIL says "no disclosure phrase found," not "this needed one"; see `reference/rule-map.md` |
 | Physical postal address present | `AUTOMATED` | |
 | Opt-out present, not fee-gated, not multi-step | `AUTOMATED` | one gate, two boundaries, same pass |
 | Opt-out honored within 10 business days | `OUT-OF-SCOPE` | a static single-email auditor can't observe what happens after sending |
