@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>can-spam-auditor — check a marketing email against the CAN-SPAM Act</title>
+<meta name="description" content="Audits a raw marketing email against the CAN-SPAM Act's core requirements (16 CFR Part 316). Zero API key, zero network calls, zero dependencies — clone it, run one script, get a real pass/fail report.">
+<meta property="og:title" content="can-spam-auditor">
+<meta property="og:description" content="Audits a raw marketing email against the CAN-SPAM Act's core requirements. Zero API key, zero network calls — clone it, run one script.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nftyoginis.github.io/can-spam-auditor/">
+<meta property="og:image" content="https://nftyoginis.github.io/can-spam-auditor/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    --cream: #faf8f3;
+    --ink: #1a1a1a;
+    --muted: #5b5b5b;
+    --amber: #b5731a;
+    --surface: #fdf3e2;
+    --border: #e8dfd0;
+    --fail: #a3372b;
+    --pass: #3a6b3e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  header.nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(250, 248, 243, 0.94);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(4px);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+  .brand { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .brand code { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  nav.links { display: flex; gap: 22px; align-items: center; }
+  nav.links a { color: var(--ink); text-decoration: none; font-size: 0.92rem; }
+  nav.links a:hover { color: var(--amber); }
+  .btn {
+    display: inline-block; padding: 10px 18px; border-radius: 6px;
+    text-decoration: none; font-weight: 600; font-size: 0.92rem;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--amber); color: #fff; }
+  .btn-primary:hover { background: #9c6216; }
+  .btn-ghost { border-color: var(--ink); color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: #fff; }
+
+  .hero { padding: 72px 0 56px; }
+  .hero h1 { font-size: 2.4rem; line-height: 1.15; margin: 0 0 18px; max-width: 780px; }
+  .hero .sub { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 0 30px; }
+  .hero .ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+  .stat-line {
+    margin-top: 34px; padding: 14px 18px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem;
+    max-width: 640px;
+  }
+  .stat-line strong { color: var(--fail); }
+
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  section h2 { font-size: 1.6rem; margin: 0 0 8px; }
+  section .lede { color: var(--muted); margin: 0 0 32px; max-width: 680px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 800px) { .grid3 { grid-template-columns: 1fr; } }
+  .card {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.02rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+  .tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  .tag-auto { background: #e3ede4; color: var(--pass); }
+  .tag-ai { background: #f3e8d9; color: var(--amber); }
+  .tag-oos { background: #eee; color: var(--muted); }
+
+  pre {
+    background: #1e1c18; color: #e8e2d5; padding: 20px; border-radius: 10px;
+    overflow-x: auto; font-size: 0.82rem; line-height: 1.55;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  pre .ok { color: #8fd18f; }
+  pre .fail { color: #e69a90; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  .steps li {
+    counter-increment: step; position: relative; padding: 0 0 22px 42px; margin-bottom: 4px;
+  }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 0;
+    width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;
+  }
+  .steps code { background: var(--surface); padding: 1px 6px; border-radius: 4px; font-size: 0.86rem; }
+
+  .proof-block {
+    border: 1px dashed var(--border); border-radius: 10px; padding: 24px;
+    color: var(--muted); font-size: 0.92rem; text-align: center;
+  }
+
+  .faq-item { margin-bottom: 22px; max-width: 720px; }
+  .faq-item h3 { font-size: 1rem; margin: 0 0 6px; }
+  .faq-item p { margin: 0; color: var(--muted); }
+
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--border); }
+  footer .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; align-items: center; }
+  footer p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+  footer a { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand"><code>can-spam-auditor</code></div>
+    <nav class="links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#sample">Sample audit</a>
+      <a href="#setup">Setup</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary" href="https://github.com/NFTYoginis/can-spam-auditor">View on GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Audit a marketing email against the CAN-SPAM Act — before the FTC does.</h1>
+    <p class="sub">Clone the repo, run one script, get a real pass/fail report against 16 CFR Part 316. Zero API key. Zero network calls. Zero third-party dependencies. Nothing here is a guess dressed up as a compliance check.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="https://github.com/NFTYoginis/can-spam-auditor">View on GitHub</a>
+      <a class="btn btn-ghost" href="#sample">See a real audit run ↓</a>
+    </div>
+    <div class="stat-line">
+      Every separate email in violation of the CAN-SPAM Act is subject to a civil penalty of <strong>up to $53,088</strong> — the FTC's own 2025 inflation-adjusted figure, still current for 2026. Every email sent counts separately.
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="wrap">
+    <h2>Two tracks, labeled by which code path fired — not narrated after the fact</h2>
+    <p class="lede">Five of the Act's requirements are genuinely mechanical — presence/absence checks on raw email source. One is mostly a judgment call, and the auditor says so instead of guessing. Two are named out of scope entirely, because a static single-email tool structurally cannot check them.</p>
+    <div class="grid3">
+      <div class="card">
+        <span class="tag tag-auto">AUTOMATED</span>
+        <h3>Header accuracy, ad disclosure, postal address, opt-out</h3>
+        <p>Deterministic code, no model in the loop. A self-test pass reads every one of these functions' own source and fails if it finds a network or LLM call — the label is checked, not claimed.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-ai">AI-ASSISTED</span>
+        <h3>Subject-line deception, outside one narrow case</h3>
+        <p>One structural pattern derived straight from 16 CFR §316.3(a)(2) is checked automatically. Everything else about "is this subject deceptive" is a reasonable-recipient judgment — flagged honestly, never silently passed.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-oos">OUT OF SCOPE</span>
+        <h3>10-day opt-out honoring, third-party monitoring</h3>
+        <p>Both require observing what happens after the email is sent. A static single-email auditor can't do that — so it says so, every run, instead of pretending.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sample">
+  <div class="wrap">
+    <h2>A real audit run, pasted verbatim</h2>
+    <p class="lede">Two invented-business fixtures, not toy examples — full worked runs live in <code>examples.md</code>. This is a multi-violation fail: a Reply-To that resolves to a different domain than the From address, and a missing physical postal address.</p>
+    <pre>$ python3 audit.py fixtures/example-glowup-multi-violation.eml
+
+# CAN-SPAM audit — example-glowup-multi-violation.eml
+
+<span class="fail">**2 FAIL**</span> / 2 PASS / 1 NEEDS-REVIEW / 2 out of scope
+
+## [FAIL] Accurate header information — `AUTOMATED`
+Reply-To domain (a-different-mailhost.example) does not match
+From domain (glowupskincare.example) — a structural inconsistency
+in the routing information 16 CFR §316.2(m) requires to be accurate.
+
+## [FAIL] Valid physical postal address present — `AUTOMATED`
+No street address, PO Box, or ZIP-code-shaped pattern found in the body.
+Cites 16 CFR §316.2(p), verbatim text checked against reference/.
+
+## [PASS] Message identified as an advertisement — `AUTOMATED`
+## [PASS] Working, one-step, no-fee opt-out mechanism — `AUTOMATED`
+## [SKIPPED] Opt-out honored within 10 business days — `OUT-OF-SCOPE`
+## [SKIPPED] Monitoring third-party senders — `OUT-OF-SCOPE`</pre>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap">
+    <h2>In the wild</h2>
+    <div class="proof-block">
+      <!-- TODO: operator — add real usage/results post-launch. No testimonials or metrics invented here. -->
+      Real-world results land here once this has actually been run against real email templates.
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div class="wrap">
+    <h2>Setup — about 2 minutes</h2>
+    <ol class="steps">
+      <li>Clone the repo: <code>git clone https://github.com/NFTYoginis/can-spam-auditor</code></li>
+      <li>Confirm you have Python 3.9+. Nothing else to install — no <code>pip install</code>, no <code>requirements.txt</code>.</li>
+      <li>Prove the checker works on your machine: <code>python3 audit.py --selftest</code></li>
+      <li>Export a real email as raw source from your email client (most: "View Original" / "Show source" / "Download .eml").</li>
+      <li>Run it: <code>python3 audit.py your-email.eml</code> — add <code>--sarif report.sarif</code> to wire it into GitHub Code Scanning.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <div class="faq-item">
+      <h3>Does a clean report mean the email is CAN-SPAM compliant?</h3>
+      <p>No. It means the five structural checks this tool can run mechanically all passed on that one email. Two real requirements — opt-out honored within 10 business days, and monitoring a hired third-party sender — aren't checked at all, and can't be, by a static single-email tool. This isn't a legal compliance certification.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does it check GDPR, CASL, or other email regulations?</h3>
+      <p>No — one Act, one email at a time, on purpose. See the repo's <code>rules.md</code> for the exact refusal language.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Why does the reference material matter so much?</h3>
+      <p>Because a finding that cites a provision you can't independently check is just an opinion with a citation-shaped label on it. <code>reference/</code> carries the actual regulation and the actual FTC guide, verbatim — open a finding, open the cited section, check the words match. <code>--selftest</code> checks that mechanically too.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What does "AI-ASSISTED" mean, exactly?</h3>
+      <p>It means the code couldn't decide and says so, instead of guessing. Subject-line deception is mostly a reasonable-recipient judgment call — one narrow, real structural pattern is checked automatically; everything else gets flagged for a human or a model to actually read.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <p>MIT-licensed (regulatory text in <code>reference/</code> is US public domain, 17 U.S.C. §105) · <a href="https://github.com/NFTYoginis/can-spam-auditor">github.com/NFTYoginis/can-spam-auditor</a></p>
+    <p>By Gabe — Your AI Specialist</p>
+  </div>
+</footer>
+
+</body>
+</html>
