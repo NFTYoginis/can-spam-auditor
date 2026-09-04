@@ -53,8 +53,8 @@ Exit code `0` if every automated check passes; `1` if any `FAIL` fired.
 | Ad disclosure present | `AUTOMATED` | |
 | Physical postal address present | `AUTOMATED` | |
 | Opt-out present, not fee-gated, not multi-step | `AUTOMATED` | one gate, two boundaries, same pass |
-| Opt-out honored within 10 business days | **OUT OF SCOPE** | a static single-email auditor can't observe what happens after sending |
-| Monitoring third-party senders | **OUT OF SCOPE** | a static single-email auditor can't observe a third party's ongoing conduct |
+| Opt-out honored within 10 business days | `OUT-OF-SCOPE` | a static single-email auditor can't observe what happens after sending |
+| Monitoring third-party senders | `OUT-OF-SCOPE` | a static single-email auditor can't observe a third party's ongoing conduct |
 
 Full mapping — citation, exact quoted text, which function checks it — in [`reference/rule-map.md`](reference/rule-map.md). The regulation and the FTC's guide are reproduced near-verbatim in `reference/` (both are US federal government works, public domain under 17 U.S.C. §105) — open a finding, open the cited section, check the words match. `audit.py --selftest` checks that mechanically too (every finding's quote is verified as an actual substring of `reference/` before the selftest can pass).
 
@@ -62,7 +62,7 @@ Full mapping — citation, exact quoted text, which function checks it — in [`
 
 ## What this is not
 
-Not a legal compliance certification. A clean report means five structural checks passed on one email — not "this business is CAN-SPAM compliant." Two real requirements aren't checked at all, by design, and the report says so every run. See `rules.md` for the exact refusal language this specialist uses when asked to overclaim.
+Not a legal compliance certification. A clean report means the four fully-automated structural checks passed, and the subject line didn't trip the one narrow deception pattern this tool can check mechanically — not "this business is CAN-SPAM compliant." Two real requirements aren't checked at all, by design, and the report says so every run. See `rules.md` for the exact refusal language this specialist uses when asked to overclaim.
 
 Not a multi-standard compliance tool. It checks one Act. Scope stays narrow on purpose — see `rules.md` § Never.
 

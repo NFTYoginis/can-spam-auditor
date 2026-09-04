@@ -404,12 +404,14 @@ def out_of_scope_findings() -> list[Finding]:
 
 AUTOMATED_CHECK_FUNCS = [
     check_header_accuracy,
+    check_subject_line,  # mixed: its one structural FAIL path is AUTOMATED,
+                          # its default path is AI-ASSISTED — included here
+                          # so the label-integrity scan below still covers
+                          # the AUTOMATED path it can produce.
     check_ad_disclosure,
     check_postal_address,
     check_opt_out,
-]  # check_subject_line excluded here: its FAIL path is AUTOMATED but its
-   # default path is AI-ASSISTED, so it's driven separately below and
-   # covered by its own label-integrity scan in run_selftest().
+]
 
 
 # --------------------------------------------------------------------------

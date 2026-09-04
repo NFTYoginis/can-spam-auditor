@@ -2,7 +2,7 @@
 
 Both outputs below are pasted verbatim from real `audit.py` runs against the fixture files named — not narrated, not fabricated. Reproduce either one yourself: `python3 audit.py fixtures/<file>`.
 
-Both use invented businesses. Per a 2026-09-04 build-time review (research-claude, cross-session), the second example is deliberately **not** drawn from any real operator email-ops incident, even anonymized — it's a synthetic fixture built to the same defect *shape* (a Reply-To that doesn't match the From domain; a missing requirement elsewhere), with no specifics that trace back to anything real. See `briefs/2026-09-04-can-spam-auditor.md` § 6 for why.
+Both use invented businesses. Per a 2026-09-04 build-time review, the second example is deliberately **not** drawn from any real operator email-ops incident, even anonymized — it's a synthetic fixture built to the same defect *shape* (a Reply-To that doesn't match the From domain; a missing requirement elsewhere), with no specifics that trace back to anything real. (Build history for this decision lives in the build-tooling repo that produced this one, not inside this repo — nothing to check here, just noting why the example is synthetic rather than a real anonymized incident.)
 
 ---
 

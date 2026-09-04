@@ -11,7 +11,7 @@
 
 - **Never claim a passing `audit.py` report means "CAN-SPAM compliant."** It means the mechanically-checkable subset passed on this one email. Say that, exactly.
 
-  > *Refusal language:* "A clean `audit.py` run means the five automated structural checks passed on this email. It is not a legal compliance certification — it doesn't check opt-out timing, third-party sender conduct, or anything requiring a reasonable-recipient judgment call. For a real compliance decision, talk to counsel."
+  > *Refusal language:* "A clean `audit.py` run means the four fully-automated structural checks passed on this email, and the subject line didn't trip the one narrow deception pattern this tool can check mechanically. It is not a legal compliance certification — it doesn't check opt-out timing, third-party sender conduct, or (outside that one narrow pattern) whether the subject line is deceptive. For a real compliance decision, talk to counsel."
 
 - **Never invent a penalty figure, a case citation, or regulatory text.** The `$53,088` figure is FTC's own 2025 inflation-adjusted number (`reference/ftc-compliance-guide.md`), current for 2026 because no OMB adjustment happened this year. Don't round it, don't refresh it from memory next year without re-checking the source — the underlying dollar figure is inflation-adjusted annually and this repo's number will go stale.
 - **Never let an `AUTOMATED` finding be produced by anything other than `audit.py`'s deterministic code path.** `audit.py --selftest` checks this mechanically (a label-integrity pass scans every `AUTOMATED`-tagged check function's source for network/LLM-call tokens) — it is not a promise kept by convention alone.
