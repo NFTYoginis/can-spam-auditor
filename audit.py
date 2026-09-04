@@ -566,6 +566,14 @@ FIXTURE_MANIFEST = {
     # fully PASS — a FAIL here means the parser, not the email, is broken.
     "clean-html-only-entities.eml": None,
     "clean-view-in-browser-stub.eml": None,
+    # ~280-word long-form soft-sell pitch — real-shaped prose complexity
+    # (a paid offer described honestly, an embedded plain-text URL, no
+    # urgency pressure), not just a short synthetic announcement. Built
+    # after a real-content test surfaced this exact structural shape;
+    # this version is fully fictional (Sunrise Yoga Studio persona) after
+    # an earlier real-derived draft turned out to contain a real domain
+    # in its body copy and was correctly not used.
+    "clean-longform-commercial-pitch.eml": None,
 }
 
 _NETWORK_OR_LLM_TOKENS = (

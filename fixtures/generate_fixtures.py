@@ -97,6 +97,65 @@ def messy_view_in_browser_message() -> EmailMessage:
     return msg
 
 
+def clean_longform_commercial_pitch_message() -> EmailMessage:
+    """A long-form, non-pushy commercial pitch (~280 words) -- the shape
+    of real soft-sell marketing copy (a paid offer described honestly,
+    'here's who this is and isn't for', an embedded plain-text URL, no
+    urgency pressure) rather than a short clean.eml-style announcement.
+    Tests parser + rule robustness against real-length, real-complexity
+    prose. Everything here should still fully PASS: proves the pipeline
+    holds up on genuinely long real-shaped copy, not just short synthetic
+    text. Fictional content throughout (Sunrise Yoga Studio persona,
+    fictional offer, fictional domain) -- built as a synthetic stand-in
+    after an earlier real-derived draft of this same structural shape
+    turned out to contain a real domain in its body copy and was
+    correctly not used."""
+    msg = EmailMessage()
+    msg["From"] = "Sunrise Yoga Studio <hello@sunriseyoga.example>"
+    msg["Reply-To"] = "hello@sunriseyoga.example"
+    msg["To"] = "subscriber@example.com"
+    msg["Subject"] = "For the few who want more than the weekly class"
+    msg.set_content(
+        "Hi there,\n\n"
+        "By now you've either started trying the technique from last week's "
+        "class -- or the week got away from you before you had a chance. "
+        "Both are completely normal.\n\n"
+        "Here's the honest split.\n\n"
+        "For most people, what we covered in class is enough. You saw the "
+        "sequence, you felt where it opens things up, and you can keep "
+        "building on it at your own pace at home. That was the whole point "
+        "of teaching it plainly -- so you don't need anything more from us. "
+        "Keep practicing.\n\n"
+        "For a few people, the constraint isn't knowing the sequence. It's "
+        "that a weekend of focused, guided practice -- with an instructor "
+        "actually watching your form the whole time -- gets you further in "
+        "two days than months of solo practice would. If that sounds like "
+        "you, there's a way to do that together. It's called the Fall "
+        "Immersion Weekend: two days working directly with an instructor "
+        "on your own practice, in a small group capped at eight people, "
+        "because eight is how many people one instructor can actually "
+        "watch closely across a full weekend.\n\n"
+        "Let me be straight about what the weekend is and isn't: you leave "
+        "with real corrections to your own form and a home practice built "
+        "around your actual body -- not a certificate, not a title. If "
+        "you're looking for a teacher-training credential, this isn't "
+        "that; this is about your own practice getting better, guided.\n\n"
+        "No pressure here. If you're curious how the weekend works, it's "
+        "laid out plainly:\n\n"
+        "sunriseyoga.example/fall-immersion\n\n"
+        "I'll send one more short note about how to tell if this is "
+        "actually worth your time -- most people's home practice is fine "
+        "as it is, and I'll say so honestly.\n\n"
+        "-- Sunrise Yoga Studio\n\n"
+        "---\n"
+        "This is a promotional email.\n"
+        "Sunrise Yoga Studio, 123 Main Street, Suite 4, Austin, TX 78701\n"
+        "Don't want these emails? Unsubscribe: "
+        "https://sunriseyoga.example/unsubscribe\n"
+    )
+    return msg
+
+
 FIXTURES = {
     "clean.eml": base_message(),
 
@@ -192,6 +251,7 @@ FIXTURES = {
     # these must fully PASS; see fixtures/manifest.md § Parser robustness.
     "clean-html-only-entities.eml": messy_html_only_message(),
     "clean-view-in-browser-stub.eml": messy_view_in_browser_message(),
+    "clean-longform-commercial-pitch.eml": clean_longform_commercial_pitch_message(),
 }
 
 

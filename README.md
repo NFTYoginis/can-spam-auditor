@@ -19,11 +19,12 @@ can-spam-auditor --selftest
 [PASS] bad-multistep-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] clean-html-only-entities.eml: clean fixture fully passes (4 automated checks)
 [PASS] clean-view-in-browser-stub.eml: clean fixture fully passes (4 automated checks)
+[PASS] clean-longform-commercial-pitch.eml: clean fixture fully passes (4 automated checks)
 
 SELFTEST PASSED
 ```
 
-The last two fixtures aren't clean synthetic text — one is HTML-only with table-layout addresses and HTML entities, the other is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send. Both are the same compliant content as `clean.eml`, shaped the way real marketing email actually arrives. See `fixtures/manifest.md` § Parser robustness.
+The last three fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch. All three carry the same compliant content shape as `clean.eml`, structured (or sized) the way real marketing email actually arrives. See `fixtures/manifest.md` § Parser robustness.
 
 ## Why this exists
 
