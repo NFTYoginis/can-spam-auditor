@@ -18,6 +18,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html
 import inspect
 import json
 import re
@@ -107,25 +108,53 @@ def get_domain(addr_header: str | None) -> str | None:
     return m.group(1).lower() if m else None
 
 
+def _html_to_text(raw: str) -> str:
+    raw = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw, flags=re.S | re.I)
+    raw = re.sub(r"<[^>]+>", " ", raw)
+    raw = html.unescape(raw)  # &#39; -> ', &amp; -> &, &nbsp; -> \xa0, etc.
+    raw = raw.replace("\xa0", " ")  # non-breaking space -> regular space
+    return raw
+
+
 def get_body_text(msg) -> str:
-    """Prefer text/plain; fall back to a crude tag-strip of text/html."""
+    """Extract the substantive body text, real-marketing-email-shaped.
+
+    Two things real marketing email routinely does that a naive "prefer
+    text/plain" rule gets wrong:
+
+    1. HTML-only, no text/plain part at all — table-based layout, HTML
+       entities instead of literal characters. Handled by falling back to
+       a tag-strip + entity-decode of the HTML part.
+    2. A multipart/alternative where the text/plain part is a near-empty
+       "View this email in your browser: <url>" stub and the *real* content
+       lives only in the HTML part — extremely common ESP output (Mailchimp/
+       Klaviyo/Kajabi-style). Blindly preferring text/plain here reads only
+       the stub and false-FAILs every check on a genuinely compliant email.
+       Fixed by comparing both parts and using whichever carries more
+       content — simple, deterministic, no keyword-sniffing for "view in
+       browser" specifically (which would miss every variant of it).
+    """
+    plain_text = ""
     plain = msg.get_body(preferencelist=("plain",))
     if plain is not None:
         try:
-            return plain.get_content()
+            plain_text = plain.get_content()
         except Exception:
-            pass
+            plain_text = ""
+
+    html_text = ""
     html_part = msg.get_body(preferencelist=("html",))
     if html_part is not None:
         try:
-            raw = html_part.get_content()
+            html_text = _html_to_text(html_part.get_content())
         except Exception:
-            raw = ""
-        raw = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw, flags=re.S | re.I)
-        raw = re.sub(r"<[^>]+>", " ", raw)
-        raw = re.sub(r"&nbsp;", " ", raw)
-        return raw
-    return ""
+            html_text = ""
+
+    if not plain_text:
+        return html_text
+    if not html_text:
+        return plain_text
+    return html_text if len(html_text.strip()) > len(plain_text.strip()) else plain_text
 
 
 # --------------------------------------------------------------------------
@@ -317,7 +346,9 @@ def check_postal_address(body_text: str) -> Finding:
 # --------------------------------------------------------------------------
 
 _OPTOUT_PRESENT = re.compile(
-    r"\b(unsubscribe|opt[- ]out|stop receiving|stop these emails)\b", re.I,
+    r"\b(unsubscribe|opt[- ]out|stop receiving|stop these emails|"
+    r"no longer (wish to |want to )?receive|"
+    r"(manage|update) (your )?(email )?preferences)\b", re.I,
 )
 _FEE_LANGUAGE = re.compile(r"(\$\s?\d|\bfee\b|\bcharge\b|payment required|pay to)", re.I)
 _MULTISTEP_LANGUAGE = re.compile(
@@ -522,6 +553,12 @@ FIXTURE_MANIFEST = {
     "bad-no-optout.eml": "rule-5-opt-out",
     "bad-fee-gated-optout.eml": "rule-5-opt-out",
     "bad-multistep-optout.eml": "rule-5-opt-out",
+    # Parser-robustness fixtures — same content as clean.eml, shaped like
+    # real-world ESP output (HTML-only + entities; a near-empty "view in
+    # browser" text/plain stub next to the real HTML content). Both must
+    # fully PASS — a FAIL here means the parser, not the email, is broken.
+    "clean-html-only-entities.eml": None,
+    "clean-view-in-browser-stub.eml": None,
 }
 
 _NETWORK_OR_LLM_TOKENS = (

@@ -15,4 +15,13 @@ All fixtures are generated from **one base clean email** by `generate_fixtures.p
 | `bad-fee-gated-optout.eml` | Unsubscribe line rewritten to demand a $5 fee | `rule-5-opt-out` FAILs (fee-gated boundary); everything else PASSes |
 | `bad-multistep-optout.eml` | Unsubscribe line rewritten to require a phone call or mailed letter | `rule-5-opt-out` FAILs (multi-step boundary); everything else PASSes |
 
-Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity).
+## Parser robustness — same content, shaped like real-world ESP output
+
+Real marketing email doesn't look like the clean plain-text base above. These two fixtures carry the *same compliant content* but structured the way actual sending platforms (Mailchimp/Klaviyo/Kajabi-style) actually output it — added after a build-time review flagged that only clean synthetic fixtures had ever been tested. Both must fully PASS; a FAIL here means the parser is broken, not the email.
+
+| Fixture | What's messy about it | Expected `audit.py` result |
+| --- | --- | --- |
+| `clean-html-only-entities.eml` | No `text/plain` part at all — HTML-only body, address laid out across `<table>` rows, HTML entities (`&nbsp;`, `&#39;`) instead of literal characters, opt-out phrased "no longer receive these emails" instead of the word "unsubscribe" | All 4 `AUTOMATED` checks PASS |
+| `clean-view-in-browser-stub.eml` | `multipart/alternative` where the `text/plain` part is a near-empty "View this email in your browser: `<url>`" stub and the real content lives only in the `text/html` part — extremely common real ESP output | All 4 `AUTOMATED` checks PASS |
+
+Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 10 assertions total: 7 rule fixtures + 2 parser-robustness fixtures + 1 label-integrity pass.

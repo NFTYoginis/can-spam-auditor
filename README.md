@@ -17,9 +17,13 @@ can-spam-auditor --selftest
 [PASS] bad-no-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] bad-fee-gated-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] bad-multistep-optout.eml: fails only rule-5-opt-out, as designed
+[PASS] clean-html-only-entities.eml: clean fixture fully passes (4 automated checks)
+[PASS] clean-view-in-browser-stub.eml: clean fixture fully passes (4 automated checks)
 
 SELFTEST PASSED
 ```
+
+The last two fixtures aren't clean synthetic text — one is HTML-only with table-layout addresses and HTML entities, the other is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send. Both are the same compliant content as `clean.eml`, shaped the way real marketing email actually arrives. See `fixtures/manifest.md` § Parser robustness.
 
 ## Why this exists
 
@@ -66,6 +70,15 @@ Not a legal compliance certification. A clean report means the four fully-automa
 
 Not a multi-standard compliance tool. It checks one Act. Scope stays narrow on purpose — see `rules.md` § Never.
 
+**Not usable without code execution.** This is instructions-plus-a-script, not a hosted service. Load the ICM layer into an environment that can't actually run `audit.py` (a chat-only context with the files pasted in, a Project with no code tool enabled) and there is no automated engine at all — `rules.md` tells the specialist to say so plainly rather than narrate a guess as a real finding. See `identity.md` § What you need to do the job.
+
+### Known parser limitations
+
+`audit.py` reads text — it doesn't render HTML or look at images. Two consequences worth knowing before trusting a clean run:
+
+- **An address or opt-out link that exists only as an image** (a graphic with no real text behind it) is invisible to every check that looks for it — this reads as a FAIL, correctly, since the auditor genuinely found no text-based instance, but a human should confirm there isn't a real one hiding in a graphic.
+- **The body-text extraction prefers whichever of `text/plain` / `text/html` has more content** (see `audit.py`'s `get_body_text()`) specifically to avoid reading a near-empty "view in browser" stub instead of the real HTML content — a real ESP pattern, not a hypothetical. If a genuine future edge case defeats that heuristic, the fix belongs in the parser, not in loosening any rule's pattern.
+
 ## Go-beyond (built or scoped, priority order)
 
 1. **SARIF output** — `--sarif`, ships today, plugs into GitHub Code Scanning / VS Code Problems panel.
@@ -81,7 +94,7 @@ reference/
   16-cfr-part-316.md        ← verbatim regulation text
   ftc-compliance-guide.md   ← verbatim FTC compliance guide
   rule-map.md               ← rule → citation → tag → check function
-identity.md / rules.md / examples.md   ← the ICM specialist layer (load this repo into a Claude Project to get an assistant that runs the checker and explains findings honestly)
+identity.md / rules.md / examples.md   ← the ICM specialist layer (load this repo into a Claude Project *with a code-execution tool enabled* to get an assistant that runs the checker and explains findings honestly — without code execution there's no automated engine, and rules.md tells the specialist to say so rather than fake it)
 docs/index.html             ← this repo's own landing page (GitHub Pages)
 ```
 

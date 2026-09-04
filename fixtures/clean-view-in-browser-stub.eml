@@ -1,0 +1,26 @@
+From: Sunrise Yoga Studio <hello@sunriseyoga.example>
+Reply-To: hello@sunriseyoga.example
+To: subscriber@example.com
+Subject: New class schedule for October
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============3293885139535101169=="
+
+--===============3293885139535101169==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+View this email in your browser: https://sunriseyoga.example/view
+
+--===============3293885139535101169==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body><p>New classes this October at Sunrise Yoga Studio.</p><p>This is=
+ a promotional email from Sunrise Yoga Studio.</p><p>Sunrise Yoga Studio<br>1=
+23 Main Street, Suite 4<br>Austin, TX 78701</p><p>You can unsubscribe at any =
+time: <a href=3D"https://sunriseyoga.example/u">click here</a></p></body></ht=
+ml>
+
+--===============3293885139535101169==--
