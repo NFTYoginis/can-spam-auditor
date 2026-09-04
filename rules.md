@@ -22,23 +22,3 @@
 ## Empty-input handling
 
 If handed a file that isn't valid email source (no headers, unparsable), `audit.py` fails loudly at parse time rather than guessing at a body — see `audit.py`'s `parse_eml()`. As a specialist in conversation: if a user pastes text with no headers at all, say so and ask for the raw source (most email clients expose "View Original" / "Show source" / "Download .eml").
-
-## ICM checklist — self-verification (run before declaring this build done)
-
-| # | Requirement | Status |
-| - | --- | --- |
-| 1 | `identity.md` | ✓ |
-| 2 | `rules.md` | ✓ (this file) |
-| 3 | `examples.md`, ≥2 worked examples | ✓ — see `examples.md` |
-| 4 | `reference/` | ✓ — `16-cfr-part-316.md` (verbatim regulation), `ftc-compliance-guide.md` (verbatim FTC guide), `rule-map.md` (the mapping) |
-| 5 | `LICENSE` | ✓ — MIT |
-| 6 | `README.md` | ✓ |
-| 7 | `docs/index.html` | ✓ |
-| 8 | Deployment — check-then-act | See build STATUS; this is a static GitHub repo, `gh repo create` + Pages enable are operator-side |
-| 9 | Refusal gate, exact language quoted | ✓ — two gates above, in § Never |
-| 10 | Named buyer | ✓ — `identity.md` § Buyer |
-| 11 | Empty-input handling | ✓ — this section |
-| 12 | Domain-grounded, no manufactured proof | ✓ — every regulatory claim traces to `reference/`; `docs/index.html` proof block carries `<!-- TODO: operator -->` |
-| 13 | Self-contained Pages output | See `docs/index.html` — no external resource fetches |
-| 14 | OG-image design brief filed | `briefs/og-images/2026-09-04-can-spam-auditor-og-image.md` in specialist-builder's own tree |
-| 15 | Repo description set | Operator-side, at `gh repo create` time |
