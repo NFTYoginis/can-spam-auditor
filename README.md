@@ -29,12 +29,22 @@ The last two fixtures aren't clean synthetic text — one is HTML-only with tabl
 
 Every separate email that violates the CAN-SPAM Act is subject to a civil penalty of **up to $53,088** — the FTC's own 2025 inflation-adjusted figure, still current for 2026 (no OMB adjustment happened this year). Every email sent counts separately. That's real money for a mistake as small as a missing unsubscribe link or a mismatched Reply-To address. See `reference/ftc-compliance-guide.md` for the FTC's own text.
 
-## Setup (2 minutes)
+## Two ways to use this
+
+This is a manual pre-send check, not a background watcher — you run it once, on one email you're about to send. It doesn't sit on a folder or an inbox.
+
+**Run it yourself (2 minutes, the real deterministic checks):**
 
 1. Clone this repo.
 2. You need Python 3.9+ and nothing else — no `pip install`, no `requirements.txt`.
 3. Run the self-test to confirm the checker works on your machine: `python3 audit.py --selftest`
 4. Audit your own email: export it from your email client as raw source (most clients: "View Original" / "Show source" / "Download .eml"), then `python3 audit.py path/to/your-email.eml`
+
+**Drop the folder into a Claude Project (a specialist that explains findings in plain language):**
+
+Add this repo to a Claude Project (or paste `identity.md` / `rules.md` / `examples.md` / `reference/` into its instructions), then paste in an email's raw source and ask it to audit CAN-SPAM compliance.
+
+⚠️ **Only real if code execution is enabled in that Project.** This specialist's `rules.md` requires it to actually run `audit.py` before calling anything `AUTOMATED` — without a code-execution tool available, it can't, and it's instructed to say so rather than fake a report. No code execution means `AI-ASSISTED` impressions only, clearly labeled as such, not the real automated checks. See `rules.md` § Always / § Never.
 
 ## Usage
 

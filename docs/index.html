@@ -64,6 +64,26 @@
     max-width: 640px;
   }
   .stat-line strong { color: var(--fail); }
+  .workflow-note {
+    margin: 14px 0 0; font-size: 0.95rem; color: var(--muted); max-width: 640px;
+  }
+  .workflow-note strong { color: var(--ink); }
+
+  .path-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  @media (max-width: 800px) { .path-grid { grid-template-columns: 1fr; } }
+  .path {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 22px;
+  }
+  .path h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .path .path-sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 16px; }
+  .path .steps { margin: 0; }
+  .path .steps li { padding-bottom: 16px; }
+  .caveat {
+    margin-top: 14px; padding: 12px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-left: 3px solid var(--amber);
+    border-radius: 6px; font-size: 0.86rem; color: var(--muted);
+  }
+  .caveat strong { color: var(--ink); }
 
   section { padding: 56px 0; border-top: 1px solid var(--border); }
   section h2 { font-size: 1.6rem; margin: 0 0 8px; }
@@ -143,6 +163,7 @@
   <div class="wrap">
     <h1>Audit a marketing email against the CAN-SPAM Act — before the FTC does.</h1>
     <p class="sub">Clone the repo, run one script, get a real pass/fail report against 16 CFR Part 316. Zero API key. Zero network calls. Zero third-party dependencies. Nothing here is a guess dressed up as a compliance check.</p>
+    <p class="workflow-note"><strong>A manual pre-send check, not a watcher.</strong> Export the draft, run one command, get pass/fail in under 10 seconds. It doesn't sit on your inbox or a folder and check emails automatically — you run it, on the email you're about to send.</p>
     <div class="ctas">
       <a class="btn btn-primary" href="https://github.com/NFTYoginis/can-spam-auditor">View on GitHub</a>
       <a class="btn btn-ghost" href="#sample">See a real audit run ↓</a>
@@ -215,14 +236,33 @@ Cites 16 CFR §316.2(p), verbatim text checked against reference/.
 
 <section id="setup">
   <div class="wrap">
-    <h2>Setup — about 2 minutes</h2>
-    <ol class="steps">
-      <li>Clone the repo: <code>git clone https://github.com/NFTYoginis/can-spam-auditor</code></li>
-      <li>Confirm you have Python 3.9+. Nothing else to install — no <code>pip install</code>, no <code>requirements.txt</code>.</li>
-      <li>Prove the checker works on your machine: <code>python3 audit.py --selftest</code></li>
-      <li>Export a real email as raw source from your email client (most: "View Original" / "Show source" / "Download .eml").</li>
-      <li>Run it: <code>python3 audit.py your-email.eml</code> — add <code>--sarif report.sarif</code> to wire it into GitHub Code Scanning.</li>
-    </ol>
+    <h2>Two ways to use this</h2>
+    <p class="lede">Same audit engine either way — the difference is whether code actually runs.</p>
+    <div class="path-grid">
+      <div class="path">
+        <h3>Run it yourself — about 2 minutes</h3>
+        <p class="path-sub">Gets you the real, deterministic checks.</p>
+        <ol class="steps">
+          <li>Clone the repo: <code>git clone https://github.com/NFTYoginis/can-spam-auditor</code></li>
+          <li>Confirm you have Python 3.9+. Nothing else to install.</li>
+          <li>Prove the checker works: <code>python3 audit.py --selftest</code></li>
+          <li>Export a real email as raw source from your email client ("View Original" / "Show source" / "Download .eml").</li>
+          <li>Run it: <code>python3 audit.py your-email.eml</code></li>
+        </ol>
+      </div>
+      <div class="path">
+        <h3>Drop the folder into a Claude Project</h3>
+        <p class="path-sub">Gets you a specialist that explains findings in plain language.</p>
+        <ol class="steps">
+          <li>Download or clone the repo.</li>
+          <li>Add the whole folder to a Claude Project (or paste <code>identity.md</code> / <code>rules.md</code> / <code>examples.md</code> / <code>reference/</code> into its instructions).</li>
+          <li>Paste in an email's raw source and ask it to audit CAN-SPAM compliance.</li>
+        </ol>
+        <div class="caveat">
+          <strong>Only real if code execution is on.</strong> This specialist's rules require it to actually run <code>audit.py</code> before calling anything <code>AUTOMATED</code> — in a Project or chat context with no code-execution tool enabled, it can't, and it's instructed to say so rather than fake it. Without code execution you get honestly-labeled <code>AI-ASSISTED</code> impressions only, not the real automated checks. Enable code execution, or use the left-hand path, for the real thing.
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -244,6 +284,10 @@ Cites 16 CFR §316.2(p), verbatim text checked against reference/.
     <div class="faq-item">
       <h3>What does "AI-ASSISTED" mean, exactly?</h3>
       <p>It means the code couldn't decide and says so, instead of guessing. Subject-line deception is mostly a reasonable-recipient judgment call — one narrow, real structural pattern is checked automatically; everything else gets flagged for a human or a model to actually read.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does this run automatically, or watch my inbox?</h3>
+      <p>No. It's a manual check you run yourself, once, on one email you're about to send — export the draft, run one command, get pass/fail in under 10 seconds. It doesn't sit on a folder or an inbox and it doesn't run on a schedule. (The optional GitHub Action, listed under Go-beyond in the README, is the one opt-in exception — it runs the same offline checker as a PR check, and you wire that up yourself.)</p>
     </div>
   </div>
 </section>
