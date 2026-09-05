@@ -46,6 +46,20 @@ def base_message(**overrides) -> EmailMessage:
     return msg
 
 
+def missing_from_header_message() -> EmailMessage:
+    """A REAL email -- has To/Reply-To/Subject and a fully compliant body
+    -- but no From header at all (structurally absent, not empty). Exercises
+    check_header_accuracy()'s 'From missing' branch specifically, which is
+    distinct from bad-header-mismatch.eml's 'Reply-To domain differs'
+    branch -- the two are different code paths to the same rule and both
+    deserve their own fixture. Also the fixture --judge-mode uses to prove
+    a real-but-incomplete email still gets a genuine FAIL, not swallowed
+    by the NotAnEmailError refusal meant for actual non-email garbage."""
+    msg = base_message()
+    del msg["From"]
+    return msg
+
+
 def messy_html_only_message() -> EmailMessage:
     """No text/plain part at all, table-layout address, HTML entities,
     and opt-out phrased as 'no longer receive these emails' instead of the
@@ -254,6 +268,8 @@ FIXTURES = {
     # Messy-but-compliant fixtures — same content as the base, shaped like
     # real-world ESP output rather than clean synthetic plain text. All of
     # these must fully PASS; see fixtures/manifest.md § Parser robustness.
+    "missing-from-header.eml": missing_from_header_message(),
+
     "clean-html-only-entities.eml": messy_html_only_message(),
     "clean-view-in-browser-stub.eml": messy_view_in_browser_message(),
     "clean-longform-commercial-pitch.eml": clean_longform_commercial_pitch_message(),

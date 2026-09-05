@@ -1,0 +1,23 @@
+name: selftest
+
+# Runs the exact same command a human is told to run in the README --
+# `python3 audit.py --selftest` -- on every push and PR, no extra config,
+# no secrets, no external service. If this goes red, the checker itself
+# is broken, not some CI-only wrapper around it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run audit.py --selftest
+        run: python3 audit.py --selftest

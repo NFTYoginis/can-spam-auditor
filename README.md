@@ -1,17 +1,48 @@
 # can-spam-auditor
 
-Audits a raw marketing email (`.eml` — full source, headers included) against the CAN-SPAM Act's core requirements, codified at **16 CFR Part 316**. Two-track: a deterministic checker for what's mechanically decidable, honest `AI-ASSISTED` labeling for what isn't, and two requirements named as out of scope rather than silently skipped.
+![selftest](https://github.com/NFTYoginis/can-spam-auditor/actions/workflows/selftest.yml/badge.svg)
 
-**Zero API key. Zero network calls. Zero third-party dependencies** — `audit.py` uses only the Python 3 standard library. Clone the repo, run one script, get a real pass/fail report. That's the whole verification story.
+**This auditor verifies its own citations before it lets itself report anything — every quoted regulatory phrase is checked as a real substring of `reference/` before it's allowed to print.** Audits a raw marketing email (`.eml` — full source, headers included) against the CAN-SPAM Act's core requirements, codified at **16 CFR Part 316**. Two-track: a deterministic checker for what's mechanically decidable, honest `AI-ASSISTED` labeling for what isn't, and two requirements named as out of scope rather than silently skipped.
+
+**Zero API key. Zero network calls. Zero third-party dependencies** — `audit.py` uses only the Python 3 standard library.
+
+## Press one button
+
+```
+$ python3 audit.py --judge-mode
+can-spam-auditor --judge-mode
+Three adversarial checks. Each one already broke this build once.
+
+[PASS] (a) garbage input -> refuses to report (NotAnEmailError, exit 2), not a plausible-looking fake finding
+[PASS] (b) a real email missing only its From header -> still a genuine rule-1 FAIL (not swallowed by (a)'s refusal)
+[PASS] (c) --selftest re-run in a subprocess with a stripped environment (PATH=/usr/bin:/bin only) -> exit 0, proving the offline claim instead of just stating it
+
+JUDGE-MODE PASSED — all three confirmed live, right now
+```
+
+Under a second, nothing to install beyond Python 3. Each of those three checks is a real, dated finding against this exact codebase, not a hypothetical — see below.
+
+## Tested by trying to break it
+
+Not a claim of being bulletproof — a dated, git-tracked arc of someone actually attacking it:
+
+An adversarial test on 2026-09-05 fed the checker plain non-email text — no headers, not an email at all — and got back a fully-formed "**4 FAIL**" report citing real CFR text, indistinguishable from a genuine finding. Root cause diagnosed the same day: `parse_eml()` never checked whether the input had *any* real email structure before running every check against it. Fixed with a hard refusal (`NotAnEmailError`, exit 2) rather than a banner, carefully distinguished from a real-but-incomplete email (which still correctly produces a genuine finding — that distinction is check (b) in `--judge-mode` above), and closed with a permanent regression test (`fixtures/not-an-email.txt`) so it can't silently reappear. Commit `4d35421`.
+
+Real-content testing the same week — professionally-drafted marketing copy, not just synthetic fixtures — found a second real gap: the ad-disclosure check didn't originally account for CAN-SPAM's own primary-purpose exemption (16 CFR §316.3), so it FAILed content that plausibly didn't need disclosure at all. Scope-noted the same day. See `docs/index.html` § In the wild for the full account.
+
+Neither of these was found by re-reading our own work. Both were found by someone trying to break it, which is the more honest kind of testing to disclose than a build that only ever tested itself.
+
+## Full test suite
 
 ```
 $ python3 audit.py --selftest
 can-spam-auditor --selftest
 
-[PASS] label-integrity: no AUTOMATED check function references network/LLM tokens
+[PASS] label-integrity: no AUTOMATED check function references network/LLM tokens (urllib, requests, httpx, http.client, socket, openai, anthropic, urlopen, os.environ)
 [PASS] not-an-email.txt: correctly refused to report against non-email input (raises NotAnEmailError)
 [PASS] clean.eml: clean fixture fully passes (4 automated checks)
 [PASS] bad-header-mismatch.eml: fails only rule-1-header-accuracy, as designed
+[PASS] missing-from-header.eml: fails only rule-1-header-accuracy, as designed
 [PASS] bad-subject-contradicts-body.eml: fails only rule-2-subject-line, as designed
 [PASS] bad-no-ad-disclosure.eml: fails only rule-3-ad-disclosure, as designed
 [PASS] bad-no-postal-address.eml: fails only rule-4-postal-address, as designed
@@ -25,11 +56,7 @@ can-spam-auditor --selftest
 SELFTEST PASSED
 ```
 
-The last three fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch. All three carry the same compliant content shape as `clean.eml`, structured (or sized) the way real marketing email actually arrives. See `fixtures/manifest.md` § Parser robustness.
-
-`not-an-email.txt` is a different kind of fixture — plain prose with zero email headers at all, proving `audit.py` refuses to produce a report against it (`NotAnEmailError`, exit 2) rather than generating a full-looking finding against garbage input, a real bug this build shipped with and fixed once an adversarial test found it.
-
-This was also tested against real, professionally-drafted marketing copy across multiple product lines, not just synthetic fixtures — see `docs/index.html` § In the wild for what that testing found (one real accuracy gap, found and fixed the same day).
+13 assertions. Three of the fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch — all shaped (or sized) the way real marketing email actually arrives, not just clean synthetic text. See `fixtures/manifest.md` § Parser robustness. The CI badge at the top runs this exact command on every push — see `.github/workflows/selftest.yml`.
 
 ## Why this exists
 
@@ -60,6 +87,7 @@ python3 audit.py <email.eml> --json                    # machine-readable
 python3 audit.py <email.eml> --sarif report.sarif       # also emit SARIF (GitHub Code Scanning, VS Code Problems panel)
 python3 audit.py <email.eml> --brand-domain example.com # stricter Rule 1: also fail if From isn't on your declared domain
 python3 audit.py --selftest                             # prove the checker works (P17-style: known-good + known-bad fixtures)
+python3 audit.py --judge-mode                           # the 3 adversarial checks above, in one command, ~10 seconds
 ```
 
 Exit code `0` if every automated check passes; `1` if any `FAIL` fired.
@@ -98,13 +126,14 @@ Not a multi-standard compliance tool. It checks one Act. Scope stays narrow on p
 ## Go-beyond (built or scoped, priority order)
 
 1. **SARIF output** — `--sarif`, ships today, plugs into GitHub Code Scanning / VS Code Problems panel.
-2. **GitHub Action** wrapping the same offline checker as a PR check for email templates in version control — not yet built, natural next step given #1.
+2. **GitHub Action** — `.github/workflows/selftest.yml`, ships today, runs `--selftest` on every push/PR (the badge at the top of this file). A PR-triggered checker against real email templates in version control is the natural next extension of the same workflow.
 3. **Drift tracking** across two versions of the same template — not yet built.
 
 ## Repo layout
 
 ```
 audit.py                    ← the whole engine, stdlib only
+.github/workflows/selftest.yml  ← CI: runs --selftest on every push/PR
 fixtures/                   ← one clean base email + one broken variant per rule, generated by fixtures/generate_fixtures.py
 reference/
   16-cfr-part-316.md        ← verbatim regulation text

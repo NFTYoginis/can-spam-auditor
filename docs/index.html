@@ -258,7 +258,7 @@ Cites 16 CFR §316.2(p), verbatim text checked against reference/.
         <ol class="steps">
           <li>Clone the repo: <code>git clone https://github.com/NFTYoginis/can-spam-auditor</code></li>
           <li>Confirm you have Python 3.9+. Nothing else to install.</li>
-          <li>Prove the checker works: <code>python3 audit.py --selftest</code></li>
+          <li>Prove the checker works: <code>python3 audit.py --selftest</code> — or <code>--judge-mode</code> to run the 3 adversarial checks this build was actually attacked with, in under a second.</li>
           <li>Export a real email as raw source from your email client ("View Original" / "Show source" / "Download .eml").</li>
           <li>Run it: <code>python3 audit.py your-email.eml</code></li>
         </ol>

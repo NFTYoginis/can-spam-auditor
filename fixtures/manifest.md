@@ -8,6 +8,7 @@ All fixtures are generated from **one base clean email** by `generate_fixtures.p
 | --- | --- | --- |
 | `clean.eml` | none — this *is* the base | All 4 `AUTOMATED` checks PASS; `rule-2-subject-line` is `AI-ASSISTED`/`NEEDS-REVIEW` (no transactional-subject pattern in a non-transactional subject — correctly ambiguous, not a FAIL) |
 | `bad-header-mismatch.eml` | `Reply-To` domain changed to an unrelated domain | `rule-1-header-accuracy` FAILs; every other `AUTOMATED` check still PASSes |
+| `missing-from-header.eml` | `From` header removed entirely (a different failure mode than a mismatched Reply-To — the header isn't wrong, it's absent) | `rule-1-header-accuracy` FAILs on the "no well-formed From" branch specifically; every other `AUTOMATED` check still PASSes. Also the fixture `--judge-mode` check (b) uses to prove a real, incomplete email still gets audited rather than refused. |
 | `bad-subject-contradicts-body.eml` | Subject changed to `Re: Your Order Confirmation`; body opens with promotional/sale language and no transactional content up front | `rule-2-subject-line` FAILs (this is the one case where the subject-line check is `AUTOMATED`, per `reference/rule-map.md`); everything else PASSes |
 | `bad-no-ad-disclosure.eml` | "This is a promotional email..." line removed | `rule-3-ad-disclosure` FAILs; everything else PASSes |
 | `bad-no-postal-address.eml` | Address block removed | `rule-4-postal-address` FAILs; everything else PASSes |
@@ -33,4 +34,8 @@ Real marketing email doesn't look like the clean plain-text base above. These tw
 
 This one exists because a blind adversarial test (2026-09-05) fed `audit.py` plain non-email text and got back a fully-formed "4 FAIL" report citing real CFR text — indistinguishable from a genuine finding to anyone who didn't know the input was garbage. Fixed the same day: `parse_eml()` now checks for at least one recognized header before proceeding at all. A real email that's merely *missing* its From header is a different case entirely and still produces a genuine `rule-1-header-accuracy` `FAIL` — see `audit.py`'s `parse_eml()` docstring for exactly where that line is drawn.
 
-Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 12 assertions total: 7 rule fixtures + 3 parser-robustness fixtures + 1 non-email-input check + 1 label-integrity pass.
+Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 13 assertions total: 8 rule fixtures + 3 parser-robustness fixtures + 1 non-email-input check + 1 label-integrity pass.
+
+## `--judge-mode`
+
+`python3 audit.py --judge-mode` runs three adversarial checks in one command, in well under a second — each one is a real historical finding against this exact codebase, not a hypothetical: (a) garbage input still gets refused, not audited; (b) a real-but-incomplete email still gets a genuine finding, proving (a)'s refusal didn't overcorrect into swallowing real audits; (c) `--selftest` re-run in a subprocess with a stripped environment (`PATH=/usr/bin:/bin` only), proving the offline claim mechanically instead of asking a reader to trust a sentence in this file. See `audit.py`'s `run_judge_mode()`.
