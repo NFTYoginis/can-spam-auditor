@@ -113,6 +113,12 @@ def messy_view_in_browser_message() -> EmailMessage:
         "</body></html>",
         subtype="html",
     )
+    # add_alternative() generates a random MIME boundary by default -- fixed
+    # here so re-running this script actually reproduces this fixture
+    # byte-for-byte, as this file's own module docstring claims. Caught
+    # because committing a regeneration churned this file's boundary string
+    # for no substantive reason.
+    msg.set_boundary("can-spam-auditor-fixed-boundary-1")
     return msg
 
 

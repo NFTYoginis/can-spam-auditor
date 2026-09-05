@@ -4,15 +4,15 @@ To: subscriber@example.com
 Subject: New class schedule for October
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="===============1595453398151813978=="
+ boundary="can-spam-auditor-fixed-boundary-1"
 
---===============1595453398151813978==
+--can-spam-auditor-fixed-boundary-1
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
 View this email in your browser: https://sunriseyoga.example/view
 
---===============1595453398151813978==
+--can-spam-auditor-fixed-boundary-1
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -23,4 +23,4 @@ MIME-Version: 1.0
 time: <a href=3D"https://sunriseyoga.example/u">click here</a></p></body></ht=
 ml>
 
---===============1595453398151813978==--
+--can-spam-auditor-fixed-boundary-1--
