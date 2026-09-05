@@ -9,6 +9,7 @@ $ python3 audit.py --selftest
 can-spam-auditor --selftest
 
 [PASS] label-integrity: no AUTOMATED check function references network/LLM tokens
+[PASS] not-an-email.txt: correctly refused to report against non-email input (raises NotAnEmailError)
 [PASS] clean.eml: clean fixture fully passes (4 automated checks)
 [PASS] bad-header-mismatch.eml: fails only rule-1-header-accuracy, as designed
 [PASS] bad-subject-contradicts-body.eml: fails only rule-2-subject-line, as designed
@@ -25,6 +26,10 @@ SELFTEST PASSED
 ```
 
 The last three fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch. All three carry the same compliant content shape as `clean.eml`, structured (or sized) the way real marketing email actually arrives. See `fixtures/manifest.md` § Parser robustness.
+
+`not-an-email.txt` is a different kind of fixture — plain prose with zero email headers at all, proving `audit.py` refuses to produce a report against it (`NotAnEmailError`, exit 2) rather than generating a full-looking finding against garbage input, a real bug this build shipped with and fixed once an adversarial test found it.
+
+This was also tested against real, professionally-drafted marketing copy across multiple product lines, not just synthetic fixtures — see `docs/index.html` § In the wild for what that testing found (one real accuracy gap, found and fixed the same day).
 
 ## Why this exists
 

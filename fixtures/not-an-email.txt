@@ -1,0 +1,8 @@
+This is a plain text file with no email structure whatsoever -- no From
+line, no To line, no Subject, no header block of any kind, just prose.
+
+It exists to prove that audit.py refuses to produce a report against
+input that was never an email in the first place, rather than silently
+treating everything as blank/missing and generating a full-looking
+report anyway. See NotAnEmailError in audit.py and the "Non-email input"
+row in fixtures/manifest.md.

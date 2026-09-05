@@ -25,4 +25,12 @@ Real marketing email doesn't look like the clean plain-text base above. These tw
 | `clean-view-in-browser-stub.eml` | `multipart/alternative` where the `text/plain` part is a near-empty "View this email in your browser: `<url>`" stub and the real content lives only in the `text/html` part — extremely common real ESP output | All 4 `AUTOMATED` checks PASS |
 | `clean-longform-commercial-pitch.eml` | ~280-word long-form soft-sell pitch — real-length, real-complexity prose (a paid offer described honestly, "here's who this is and isn't for," an embedded plain-text URL, no urgency pressure) instead of a short synthetic announcement. Fictional throughout; built as a synthetic stand-in after an earlier real-derived draft of this same shape turned out to contain a real domain in its body copy and was correctly not used | All 4 `AUTOMATED` checks PASS |
 
-Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 11 assertions total: 7 rule fixtures + 3 parser-robustness fixtures + 1 label-integrity pass.
+## Non-email input
+
+| Fixture | What it tests | Expected `audit.py` result |
+| --- | --- | --- |
+| `not-an-email.txt` | Plain prose, zero RFC 5322 headers — not an email missing a field, not an email at all | `run_audit()` raises `NotAnEmailError`; the CLI exits 2 with an explanation, never a report |
+
+This one exists because a blind adversarial test (2026-09-05) fed `audit.py` plain non-email text and got back a fully-formed "4 FAIL" report citing real CFR text — indistinguishable from a genuine finding to anyone who didn't know the input was garbage. Fixed the same day: `parse_eml()` now checks for at least one recognized header before proceeding at all. A real email that's merely *missing* its From header is a different case entirely and still produces a genuine `rule-1-header-accuracy` `FAIL` — see `audit.py`'s `parse_eml()` docstring for exactly where that line is drawn.
+
+Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 12 assertions total: 7 rule fixtures + 3 parser-robustness fixtures + 1 non-email-input check + 1 label-integrity pass.

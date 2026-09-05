@@ -96,9 +96,35 @@ class Finding:
 # --------------------------------------------------------------------------
 
 
+class NotAnEmailError(Exception):
+    """Raised when the input has zero recognizable RFC 5322 headers at all
+    -- i.e. it isn't email source, not just an email missing a required
+    field. Those are different failures and must not produce the same
+    output: an email genuinely missing a From header is a real Rule 1
+    FAIL worth reporting; arbitrary garbage text fed to a lenient parser
+    is not an email at all, and printing a full report full of real
+    citations against it would be indistinguishable from a genuine
+    finding -- confirmed by testing exactly that (a blind adversarial
+    test on 2026-09-05 fed plain non-email text and got back a fully
+    formed '4 FAIL' report citing real CFR text)."""
+
+
 def parse_eml(path: Path):
     with open(path, "rb") as f:
-        return BytesParser(policy=policy.default).parse(f)
+        msg = BytesParser(policy=policy.default).parse(f)
+    if not list(msg.keys()):
+        raise NotAnEmailError(
+            f"{path.name} has zero recognizable email headers (no From, "
+            "To, Subject, Date, or any other RFC 5322 header field was "
+            "found at all). This doesn't look like raw email source -- "
+            "audit.py refuses to produce a report against it rather than "
+            "generate findings that would look real but aren't. If this "
+            "is genuinely a raw email, confirm it wasn't double-encoded, "
+            "re-wrapped, or saved as rendered text instead of source "
+            '(most clients: "View Original" / "Show source" / "Download '
+            '.eml").'
+        )
+    return msg
 
 
 def get_domain(addr_header: str | None) -> str | None:
@@ -608,6 +634,22 @@ def run_selftest() -> int:
         for p in label_problems:
             print(f"       {p}")
 
+    not_email_path = FIXTURES_DIR / "not-an-email.txt"
+    if not not_email_path.exists():
+        ok = False
+        print("[FAIL] not-an-email.txt: fixture file missing")
+    else:
+        try:
+            run_audit(not_email_path)
+            ok = False
+            print("[FAIL] not-an-email.txt: expected NotAnEmailError, but "
+                  "run_audit() returned a report instead -- this is the "
+                  "exact failure mode a 2026-09-05 adversarial test found: "
+                  "garbage input producing a plausible-looking audit")
+        except NotAnEmailError:
+            print("[PASS] not-an-email.txt: correctly refused to report "
+                  "against non-email input (raises NotAnEmailError)")
+
     for fixture_name, expected_fail_rule in FIXTURE_MANIFEST.items():
         fixture_path = FIXTURES_DIR / fixture_name
         if not fixture_path.exists():
@@ -679,7 +721,11 @@ def main(argv=None) -> int:
         print(f"error: {path} not found", file=sys.stderr)
         return 2
 
-    findings = run_audit(path, brand_domain=args.brand_domain)
+    try:
+        findings = run_audit(path, brand_domain=args.brand_domain)
+    except NotAnEmailError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
 
     if args.json:
         print(json.dumps([f.to_dict() for f in findings], indent=2))
