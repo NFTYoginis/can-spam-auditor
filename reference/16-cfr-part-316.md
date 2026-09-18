@@ -40,13 +40,17 @@ This part implements the Controlling the Assault of Non-Solicited Pornography an
 
 (l) The definition of the term "routine conveyance" is the same as the definition of that term in the CAN-SPAM Act, 15 U.S.C. 7702(15).
 
+<!-- anchor:rule-1-header-accuracy -->
 (m) The definition of the term "sender" is the same as the definition of that term in the CAN-SPAM Act, 15 U.S.C. 7702(16), provided that, when more than one person's products, services, or Internet website are advertised or promoted in a single electronic mail message, each such person who is within the Act's definition will be deemed to be a "sender," except that, only one person will be deemed to be the "sender" of that message if such person: (A) is within the Act's definition of "sender"; (B) is identified in the "from" line as the sole sender of the message; and (C) is in compliance with 15 U.S.C. 7704(a)(1), 15 U.S.C. 7704(a)(2), 15 U.S.C. 7704(a)(3)(A)(i), 15 U.S.C. 7704(a)(5)(A), and 16 CFR 316.4.
+<!-- /anchor -->
 
 (n) The definition of the term "sexually oriented material" is the same as the definition of that term in the CAN-SPAM Act, 15 U.S.C. 7704(d)(4).
 
 (o) The definition of the term "transactional or relationship messages" is the same as the definition of that term in the CAN-SPAM Act, 15 U.S.C. 7702(17).
 
+<!-- anchor:rule-4-postal-address -->
 (p) "Valid physical postal address" means the sender's current street address, a Post Office box the sender has accurately registered with the United States Postal Service, or a private mailbox the sender has accurately registered with a commercial mail receiving agency that is established pursuant to United States Postal Service regulations.
+<!-- /anchor -->
 
 ---
 
@@ -56,11 +60,13 @@ This part implements the Controlling the Assault of Non-Solicited Pornography an
 
 (1) If an electronic mail message consists exclusively of the commercial advertisement or promotion of a commercial product or service, then the "primary purpose" of the message shall be deemed to be commercial.
 
+<!-- anchor:rule-2-subject-line -->
 (2) If an electronic mail message contains both the commercial advertisement or promotion of a commercial product or service as well as transactional or relationship content as set forth in paragraph (c) of this section, then the "primary purpose" of the message shall be deemed to be commercial if:
 
 (i) A recipient reasonably interpreting the subject line of the electronic mail message would likely conclude that the message contains the commercial advertisement or promotion of a commercial product or service; or
 
 (ii) The electronic mail message's transactional or relationship content as set forth in paragraph (c) of this section does not appear, in whole or in substantial part, at the beginning of the body of the message.
+<!-- /anchor -->
 
 (3) If an electronic mail message contains both the commercial advertisement or promotion of a commercial product or service as well as other content that is not transactional or relationship content as set forth in paragraph (c) of this section, then the "primary purpose" of the message shall be deemed to be commercial if:
 
@@ -120,11 +126,15 @@ This part implements the Controlling the Assault of Non-Solicited Pornography an
 
 ## § 316.5 Prohibition on charging a fee or imposing other requirements on recipients who wish to opt out.
 
+<!-- anchor:rule-5-opt-out -->
 Neither a sender nor any person acting on behalf of a sender may require that any recipient pay any fee, provide any information other than the recipient's electronic mail address and opt-out preferences, or take any other steps except sending a reply electronic mail message or visiting a single Internet Web page, in order to:
 
 (a) Use a return electronic mail address or other Internet-based mechanism, required by 15 U.S.C. 7704(a)(3), to submit a request not to receive future commercial electronic mail messages from a sender; or
+<!-- /anchor -->
 
+<!-- anchor:rule-6-prompt-honor -->
 (b) Have such a request honored as required by 15 U.S.C. 7704(a)(3)(B) and (a)(4).
+<!-- /anchor -->
 
 ---
 

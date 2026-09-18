@@ -2,7 +2,7 @@
 
 ![selftest](https://github.com/NFTYoginis/can-spam-auditor/actions/workflows/selftest.yml/badge.svg)
 
-**This auditor verifies its own citations before it lets itself report anything — every quoted regulatory phrase is checked as a real substring of `reference/` before it's allowed to print.** Audits a raw marketing email (`.eml` — full source, headers included) against the CAN-SPAM Act's core requirements, codified at **16 CFR Part 316**. Two-track: a deterministic checker for what's mechanically decidable, honest `AI-ASSISTED` labeling for what isn't, and two requirements named as out of scope rather than silently skipped.
+**This auditor verifies its own citations before it lets itself report anything — every quoted regulatory phrase is checked as a real substring of `reference/`, scoped to the specific provision it's cited under, before it's allowed to print.** Audits a raw marketing email (`.eml` — full source, headers included) against the CAN-SPAM Act's core requirements, codified at **16 CFR Part 316**. Two-track: a deterministic checker for what's mechanically decidable, honest `AI-ASSISTED` labeling for what isn't, and two requirements named as out of scope rather than silently skipped.
 
 **Zero API key. Zero network calls. Zero third-party dependencies** — `audit.py` uses only the Python 3 standard library.
 
@@ -49,6 +49,7 @@ can-spam-auditor --selftest
 [PASS] bad-no-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] bad-fee-gated-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] bad-multistep-optout.eml: fails only rule-5-opt-out, as designed
+[PASS] bad-extra-info-optout.eml: fails only rule-5-opt-out, as designed
 [PASS] clean-html-only-entities.eml: clean fixture fully passes (4 automated checks)
 [PASS] clean-view-in-browser-stub.eml: clean fixture fully passes (4 automated checks)
 [PASS] clean-longform-commercial-pitch.eml: clean fixture fully passes (4 automated checks)
@@ -56,7 +57,7 @@ can-spam-auditor --selftest
 SELFTEST PASSED
 ```
 
-13 assertions. Three of the fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch — all shaped (or sized) the way real marketing email actually arrives, not just clean synthetic text. See `fixtures/manifest.md` § Parser robustness. The CI badge at the top runs this exact command on every push — see `.github/workflows/selftest.yml`.
+14 assertions. Three of the fixtures aren't clean short synthetic text — one is HTML-only with table-layout addresses and HTML entities, one is the "View this email in your browser" stub pattern real ESPs (Mailchimp/Klaviyo/Kajabi-style) actually send, and one is a ~280-word real-length soft-sell pitch — all shaped (or sized) the way real marketing email actually arrives, not just clean synthetic text. See `fixtures/manifest.md` § Parser robustness. The CI badge at the top runs this exact command on every push — see `.github/workflows/selftest.yml`.
 
 ## Why this exists
 
@@ -100,7 +101,7 @@ Exit code `0` if every automated check passes; `1` if any `FAIL` fired.
 | Non-deceptive subject line | `AUTOMATED` *(one narrow structural case)* / `AI-ASSISTED` *(everything else)* | See `reference/rule-map.md` |
 | Ad disclosure present | `AUTOMATED` | only binds commercial-purpose messages (§316.3) — a FAIL says "no disclosure phrase found," not "this needed one"; see `reference/rule-map.md` |
 | Physical postal address present | `AUTOMATED` | |
-| Opt-out present, not fee-gated, not multi-step | `AUTOMATED` | one gate, two boundaries, same pass |
+| Opt-out present, not fee-gated, not multi-step, not info-gated | `AUTOMATED` | one gate, three boundaries, same pass |
 | Opt-out honored within 10 business days | `OUT-OF-SCOPE` | a static single-email auditor can't observe what happens after sending |
 | Monitoring third-party senders | `OUT-OF-SCOPE` | a static single-email auditor can't observe a third party's ongoing conduct |
 

@@ -40,7 +40,7 @@ Both use invented businesses. Per a 2026-09-04 build-time review, the second exa
 
 ## [PASS] Working, one-step, no-fee opt-out mechanism — `AUTOMATED`
 - **Rule:** rule-5-opt-out
-- Opt-out language is present with no fee-gating or multi-step language detected nearby.
+- Opt-out language is present with no fee-gating, multi-step, or extra-information language detected nearby.
 
 ## [SKIPPED] Opt-out honored within 10 business days — `OUT-OF-SCOPE`
 - A static single-email auditor has no way to observe what happens after the email is sent.
@@ -87,7 +87,7 @@ Both use invented businesses. Per a 2026-09-04 build-time review, the second exa
 - No street address, PO Box, or ZIP-code-shaped pattern found in the body.
 
 ## [PASS] Working, one-step, no-fee opt-out mechanism — `AUTOMATED`
-- Opt-out language is present with no fee-gating or multi-step language detected nearby.
+- Opt-out language is present with no fee-gating, multi-step, or extra-information language detected nearby.
 
 ## [SKIPPED] Opt-out honored within 10 business days — `OUT-OF-SCOPE`
 ## [SKIPPED] Monitoring third-party senders acting on your behalf — `OUT-OF-SCOPE`

@@ -18,7 +18,9 @@ Despite its name, the CAN-SPAM Act doesn't apply just to bulk email. It covers a
 
 **Don't use deceptive subject lines.** The subject line must accurately reflect the content of the message.
 
+<!-- anchor:rule-3-ad-disclosure -->
 **Identify the message as an ad.** The law gives you a lot of leeway in how to do this, but you must disclose clearly and conspicuously that your message is an advertisement.
+<!-- /anchor -->
 
 **Tell recipients where you're located.** Your message must include your valid physical postal address. This can be your current street address, a post office box you've registered with the U.S. Postal Service, or a private mailbox you've registered with a commercial mail receiving agency established under Postal Service regulations.
 
@@ -28,7 +30,9 @@ Despite its name, the CAN-SPAM Act doesn't apply just to bulk email. It covers a
 
 **Honor opt-out requests promptly.** Any opt-out mechanism you offer must be able to process opt-out requests for at least 30 days after you send your message. You must honor a recipient's opt-out request within 10 business days. You can't charge a fee, require the recipient to give you any personally identifying information beyond an email address, or make the recipient take any step other than sending a reply email or visiting a single page on an Internet website as a condition for honoring an opt-out request. Once people have told you they don't want to receive more messages from you, you can't sell or transfer their email addresses, even in the form of a mailing list. The only exception is that you may transfer the addresses to a company you've hired to help you comply with the CAN-SPAM Act.
 
+<!-- anchor:rule-7-third-party-monitoring -->
 **Monitor what others are doing on your behalf.** The law makes clear that even if you hire another company to handle your email marketing, you can't contract away your legal responsibility to comply with the law. Both the company whose product is promoted in the message and the company that actually sends the message may be held legally responsible.
+<!-- /anchor -->
 
 ## Need more information? Here are the answers to some questions businesses have had about complying with the CAN-SPAM Act.
 

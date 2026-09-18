@@ -271,6 +271,21 @@ FIXTURES = {
         ),
     ),
 
+    "bad-extra-info-optout.eml": base_message(
+        body=(
+            "Hi there,\n\n"
+            "Here's what's new at Sunrise Yoga Studio this October: three "
+            "new class times added to our weekly schedule, plus a new "
+            "outdoor sunrise flow series starting October 5th.\n\n"
+            "This is a promotional email from Sunrise Yoga Studio.\n\n"
+            "Sunrise Yoga Studio\n"
+            "123 Main Street, Suite 4\n"
+            "Austin, TX 78701\n\n"
+            "To unsubscribe, please enter your phone number and reason for "
+            "leaving at https://sunriseyoga.example/unsubscribe\n"
+        ),
+    ),
+
     # Messy-but-compliant fixtures — same content as the base, shaped like
     # real-world ESP output rather than clean synthetic plain text. All of
     # these must fully PASS; see fixtures/manifest.md § Parser robustness.

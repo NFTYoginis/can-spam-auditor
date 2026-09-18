@@ -43,12 +43,28 @@ PENALTY_LINE = (
 # --------------------------------------------------------------------------
 
 
-def load_reference_text() -> dict[str, str]:
-    texts = {}
+_ANCHOR_RE = re.compile(r"<!--\s*anchor:([\w.()-]+)\s*-->(.*?)<!--\s*/anchor\s*-->", re.S)
+
+
+def load_reference_anchors() -> dict[str, str]:
+    """P16: per-provision text windows keyed by rule_id, parsed out of
+    reference/'s <!-- anchor:<rule_id> --> markers. A quote can only be
+    checked against the anchor matching its OWN finding's rule_id, not the
+    whole corpus -- a true quote filed under the wrong provision (a
+    citation swap) must fail this, not pass because the words happen to
+    exist somewhere else in reference/. This is the fix for the exact
+    defect class that took down 7/20 entries (including this build's own
+    ancestor) in the Skool Comp #12 "The Auditor" adversarial citation-swap
+    test."""
+    anchors: dict[str, str] = {}
     for name in ("16-cfr-part-316.md", "ftc-compliance-guide.md"):
         path = REFERENCE_DIR / name
-        texts[name] = path.read_text(encoding="utf-8") if path.exists() else ""
-    return texts
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for rule_id, body in _ANCHOR_RE.findall(text):
+            anchors[rule_id] = anchors.get(rule_id, "") + " " + body
+    return anchors
 
 
 def _normalize(s: str) -> str:
@@ -57,10 +73,14 @@ def _normalize(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-def quote_is_grounded(quote: str, ref_texts: dict[str, str]) -> bool:
-    """P16: is this finding's cited quote an actual substring of reference/?"""
-    q = _normalize(quote)
-    return any(q in _normalize(text) for text in ref_texts.values())
+def quote_is_grounded(quote: str, rule_id: str, anchors: dict[str, str]) -> bool:
+    """P16: is this finding's cited quote an actual substring of the
+    reference/ text anchored to its own rule_id -- never the concatenated
+    corpus, which would let a quote pass under the wrong provision."""
+    anchor_text = anchors.get(rule_id)
+    if anchor_text is None:
+        return False
+    return _normalize(quote) in _normalize(anchor_text)
 
 
 # --------------------------------------------------------------------------
@@ -375,8 +395,8 @@ def check_postal_address(body_text: str) -> Finding:
 
 
 # --------------------------------------------------------------------------
-# Rule 5 — opt-out present, not fee-gated, not multi-step
-# (16 CFR 316.5; AUTOMATED — one gate, two boundaries in the same pass)
+# Rule 5 — opt-out present, not fee-gated, not multi-step, not info-gated
+# (16 CFR 316.5; AUTOMATED — one gate, three boundaries in the same pass)
 # --------------------------------------------------------------------------
 
 _OPTOUT_PRESENT = re.compile(
@@ -388,6 +408,12 @@ _FEE_LANGUAGE = re.compile(r"(\$\s?\d|\bfee\b|\bcharge\b|payment required|pay to
 _MULTISTEP_LANGUAGE = re.compile(
     r"\b(call us|call \(|mail a letter|send a letter|log in to your account|"
     r"sign in to your account|visit our office)\b", re.I,
+)
+_EXTRA_INFO_LANGUAGE = re.compile(
+    r"\b(phone number|date of birth|social security|mailing address|"
+    r"verify your (identity|account)|confirm your password|"
+    r"reason for (leaving|unsubscribing)|why (are you|you're) (leaving|unsubscribing)|"
+    r"enter your (password|account number|zip code))\b", re.I,
 )
 
 
@@ -425,11 +451,22 @@ def check_opt_out(body_text: str) -> Finding:
             "§316.5 requires opt-out to take no more than a reply email or "
             "visiting a single web page.",
         )
+    if _EXTRA_INFO_LANGUAGE.search(window):
+        return Finding(
+            "rule-5-opt-out", "Working, one-step, no-fee opt-out mechanism",
+            "16 CFR §316.5", quote, "AUTOMATED", "FAIL",
+            "Opt-out language is present but asks for information beyond "
+            "the recipient's email address and opt-out preferences (e.g. a "
+            "phone number, account verification, or a reason for leaving) "
+            "— §316.5 bars requiring any information other than the "
+            "recipient's email address and opt-out preferences to process "
+            "an opt-out.",
+        )
     return Finding(
         "rule-5-opt-out", "Working, one-step, no-fee opt-out mechanism",
         "16 CFR §316.5", quote, "AUTOMATED", "PASS",
-        "Opt-out language is present with no fee-gating or multi-step "
-        "language detected nearby. Scope note: this rule applies "
+        "Opt-out language is present with no fee-gating, multi-step, or "
+        "extra-information language detected nearby. Scope note: this rule applies "
         "regardless of subscriber/membership status (FTC guide header 6) "
         "unless the message is genuinely transactional-or-relationship per "
         "§316.3(c) — this checker does not attempt that judgment.",
@@ -497,9 +534,9 @@ def run_audit(path: Path, brand_domain: str | None = None) -> list[Finding]:
     ]
     findings.extend(out_of_scope_findings())
 
-    ref_texts = load_reference_text()
+    anchors = load_reference_anchors()
     for f in findings:
-        f.quote_grounded = quote_is_grounded(f.quote, ref_texts)
+        f.quote_grounded = quote_is_grounded(f.quote, f.rule_id, anchors)
 
     return findings
 
@@ -588,6 +625,7 @@ FIXTURE_MANIFEST = {
     "bad-no-optout.eml": "rule-5-opt-out",
     "bad-fee-gated-optout.eml": "rule-5-opt-out",
     "bad-multistep-optout.eml": "rule-5-opt-out",
+    "bad-extra-info-optout.eml": "rule-5-opt-out",
     # Parser-robustness fixtures — same content as clean.eml, shaped like
     # real-world ESP output (HTML-only + entities; a near-empty "view in
     # browser" text/plain stub next to the real HTML content). Both must

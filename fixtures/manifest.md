@@ -15,6 +15,7 @@ All fixtures are generated from **one base clean email** by `generate_fixtures.p
 | `bad-no-optout.eml` | Unsubscribe line removed entirely | `rule-5-opt-out` FAILs (no mechanism at all); everything else PASSes |
 | `bad-fee-gated-optout.eml` | Unsubscribe line rewritten to demand a $5 fee | `rule-5-opt-out` FAILs (fee-gated boundary); everything else PASSes |
 | `bad-multistep-optout.eml` | Unsubscribe line rewritten to require a phone call or mailed letter | `rule-5-opt-out` FAILs (multi-step boundary); everything else PASSes |
+| `bad-extra-info-optout.eml` | Unsubscribe line rewritten to demand a phone number and a reason for leaving | `rule-5-opt-out` FAILs (info-gated boundary — §316.5 bars requiring anything beyond email + opt-out preferences); everything else PASSes |
 
 ## Parser robustness — same content, shaped like real-world ESP output
 
@@ -34,7 +35,7 @@ Real marketing email doesn't look like the clean plain-text base above. These tw
 
 This one exists because a blind adversarial test (2026-09-05) fed `audit.py` plain non-email text and got back a fully-formed "4 FAIL" report citing real CFR text — indistinguishable from a genuine finding to anyone who didn't know the input was garbage. Fixed the same day: `parse_eml()` now checks for at least one recognized header before proceeding at all. A real email that's merely *missing* its From header is a different case entirely and still produces a genuine `rule-1-header-accuracy` `FAIL` — see `audit.py`'s `parse_eml()` docstring for exactly where that line is drawn.
 
-Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 13 assertions total: 8 rule fixtures + 3 parser-robustness fixtures + 1 non-email-input check + 1 label-integrity pass.
+Run `python3 audit.py --selftest` to check all of the above mechanically, plus a **label-integrity pass** (no `AUTOMATED`-tagged check function may contain a network or LLM-call token — see `reference/rule-map.md` § Label integrity). 14 assertions total: 9 rule fixtures + 3 parser-robustness fixtures + 1 non-email-input check + 1 label-integrity pass.
 
 ## `--judge-mode`
 
